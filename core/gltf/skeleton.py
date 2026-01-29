@@ -1,21 +1,25 @@
-# MediaPipe landmark index
-MP = {
-    "pelvis": 23,     # LEFT_HIP
-    "spine": 11,      # LEFT_SHOULDER
-    "head": 0,        # NOSE
-    "left_arm": 13,   # LEFT_ELBOW
-    "right_arm": 14,  # RIGHT_ELBOW
-    "left_leg": 25,   # LEFT_KNEE
-    "right_leg": 26,  # RIGHT_KNEE
-}
+# core/gltf/skeleton.py
 
-# 親子関係（glTF用）
-BONES = {
-    "pelvis": None,
-    "spine": "pelvis",
-    "head": "spine",
-    "left_arm": "spine",
-    "right_arm": "spine",
-    "left_leg": "pelvis",
-    "right_leg": "pelvis",
-}
+MEDIAPIPE_SKELETON = [
+    ("pelvis", None),
+    ("spine", "pelvis"),
+    ("chest", "spine"),
+    ("neck", "chest"),
+    ("head", "neck"),
+
+    ("left_shoulder", "chest"),
+    ("left_elbow", "left_shoulder"),
+    ("left_wrist", "left_elbow"),
+
+    ("right_shoulder", "chest"),
+    ("right_elbow", "right_shoulder"),
+    ("right_wrist", "right_elbow"),
+
+    ("left_hip", "pelvis"),
+    ("left_knee", "left_hip"),
+    ("left_ankle", "left_knee"),
+
+    ("right_hip", "pelvis"),
+    ("right_knee", "right_hip"),
+    ("right_ankle", "right_knee"),
+]
