@@ -1,2 +1,7 @@
-UPLOAD_DIR = "data/uploads"
-OUTPUT_DIR = "data/outputs"
+# app/config.py
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+UPLOAD_DIR = BASE_DIR / "data" / "uploads"
+
+UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
