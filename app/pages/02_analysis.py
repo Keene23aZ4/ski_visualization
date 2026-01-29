@@ -1,25 +1,19 @@
+import sys
+from pathlib import Path
+ROOT = Path(__file__).resolve().parents[2]
+sys.path.append(str(ROOT))
+
 import streamlit as st
-from core.pose.mediapipe_pose import MediaPipePose
 
-st.header("② 解析")
+from core.pose.run_pose import run_mediapipe
+from core.pose.mediapipe_adapter import extract_frames_from_mediapipe
 
-if "video_path" not in st.session_state:
+st.header("② 姿勢推定")
+
+if "video_path" in st.session_state:
+    if st.button("姿勢推定を実行"):
+        results = run_mediapipe(st.session_state["video_path"])
+        frames = extract_frames_from_mediapipe(results)
+        st.success("姿勢推定完了")
+else:
     st.warning("先に動画をアップロードしてください")
-    st.stop()
-
-pose_model = st.selectbox("姿勢推定モデル", ["mediapipe"])
-
-if st.button("解析開始"):
-    estimator = MediaPipePose()
-    keypoints = estimator.estimate(st.session_state["video_path"])
-    st.session_state["keypoints"] = keypoints
-    st.success("解析完了")
-
-from core.gltf.animation import extract_bone_positions
-from core.gltf.exporter import export_glb
-
-bones = extract_bone_positions(keypoints)
-out_path = "data/outputs/model.glb"
-export_glb(bones, out_path)
-
-st.session_state["model_path"] = out_path
