@@ -21,3 +21,9 @@ if video:
 
     st.success("アップロード完了")
     st.session_state["video_path"] = save_path
+    
+if "video_path" in st.session_state:
+    if st.button("② 解析開始"):
+        results_list = run_mediapipe(st.session_state["video_path"])
+
+        st.write("frames from mediapipe:", len(results_list))
