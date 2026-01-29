@@ -7,6 +7,8 @@ sys.path.append(str(ROOT))
 import streamlit as st
 import uuid
 from app.config import UPLOAD_DIR
+from core.pose.run_pose import run_mediapipe
+from core.pose.mediapipe_adapter import extract_frames_from_mediapipe
 
 st.header("① 動画アップロード")
 
