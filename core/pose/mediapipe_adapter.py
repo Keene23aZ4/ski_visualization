@@ -1,26 +1,54 @@
 # core/pose/mediapipe_adapter.py
 
+"""
+MediaPipe Pose の出力を
+- フレーム単位
+- ランドマーク名 → 3D座標
+という構造に変換するアダプタ
+"""
+
 import numpy as np
 import mediapipe as mp
 
-# 正しい使用方法
-Pose = mp.solutions.pose.Pose
-POSE_LANDMARKS = mp.solutions.pose.PoseLandmark  # 定数列挙
+# PoseLandmark enum（公式 Legacy API）
+PoseLandmark = mp.solutions.pose.PoseLandmark
 
 
+def extract_frames_from_mediapipe(pose_landmarks_list):
+    """
+    Parameters
+    ----------
+    pose_landmarks_list : list
+        run_mediapipe() から返される
+        results.pose_landmarks のリスト
 
-def _vec(lm):
-    return np.array([lm.x, lm.y, lm.z], dtype=np.float32)
+    Returns
+    -------
+    frames : list[dict]
+        [
+          {
+            "LEFT_HIP": np.array([x, y, z]),
+            "RIGHT_HIP": np.array([x, y, z]),
+            ...
+          },
+          ...
+        ]
+    """
 
-
-def extract_frames_from_mediapipe(results_list):
     frames = []
 
-    for pose_landmarks in results_list:
+    for pose_landmarks in pose_landmarks_list:
         frame = {}
-        for lm_enum in mp.solutions.pose.PoseLandmark:
+
+        # 各ランドマークを名前付きで格納
+        for lm_enum in PoseLandmark:
             lm = pose_landmarks.landmark[lm_enum.value]
-            frame[lm_enum.name] = np.array([lm.x, lm.y, lm.z])
+
+            frame[lm_enum.name] = np.array(
+                [lm.x, lm.y, lm.z],
+                dtype=np.float32
+            )
+
         frames.append(frame)
 
     return frames
