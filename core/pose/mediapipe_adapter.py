@@ -1,7 +1,11 @@
 # core/pose/mediapipe_adapter.py
+# core/pose/mediapipe_adapter.py
 
 import numpy as np
-from mediapipe.python.solutions.pose import PoseLandmark
+import mediapipe as mp
+
+PoseLandmark = mp.solutions.pose.PoseLandmark
+
 
 
 def _vec(lm):
@@ -85,3 +89,4 @@ def extract_frames_from_mediapipe(results_list):
         frames.append(frame)
 
     return frames
+
