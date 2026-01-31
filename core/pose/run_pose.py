@@ -1,7 +1,7 @@
 # core/pose/run_pose.py
-
-import cv2
 import mediapipe as mp
+print("MediaPipe Image:", mp.Image)
+import cv2
 from mediapipe.tasks.python import vision
 
 
