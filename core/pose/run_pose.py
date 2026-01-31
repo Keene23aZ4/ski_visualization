@@ -2,27 +2,56 @@
 
 import cv2
 import mediapipe as mp
+from mediapipe.tasks import python
+from mediapipe.tasks.python import vision
 
-def run_mediapipe(video_path):
+
+def run_mediapipe(video_path: str):
+    """
+    MediaPipe Tasks API (PoseLandmarker) を使って
+    動画から pose landmarks を抽出する
+    """
+
+    # ===== モデル準備 =====
+    # MediaPipe 公式モデル
+    model_path = "pose_landmarker_lite.task"
+
+    BaseOptions = mp.tasks.BaseOptions
+    PoseLandmarker = vision.PoseLandmarker
+    PoseLandmarkerOptions = vision.PoseLandmarkerOptions
+    VisionRunningMode = vision.RunningMode
+
+    options = PoseLandmarkerOptions(
+        base_options=BaseOptions(model_asset_path=model_path),
+        running_mode=VisionRunningMode.VIDEO,
+    )
+
+    # ===== 動画読み込み =====
     cap = cv2.VideoCapture(video_path)
-    mp_pose = mp.solutions.pose
+    fps = cap.get(cv2.CAP_PROP_FPS)
+    timestamp_ms = 0
 
-    frames = []
+    results_all = []
 
-    with mp_pose.Pose(
-        static_image_mode=False,
-        model_complexity=2,
-        enable_segmentation=False
-    ) as pose:
-
+    with PoseLandmarker.create_from_options(options) as landmarker:
         while cap.isOpened():
             ret, frame = cap.read()
             if not ret:
                 break
 
-            rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            results = pose.process(rgb)
-            frames.append(results)
+            # OpenCV → MediaPipe Image
+            mp_image = mp.Image.create_from_array(
+                frame[:, :, ::-1],  # BGR → RGB
+                image_format=mp.ImageFormat.SRGB,
+            )
+
+            result = landmarker.detect_for_video(
+                mp_image,
+                int(timestamp_ms),
+            )
+
+            results_all.append(result)
+            timestamp_ms += 1000 / fps
 
     cap.release()
-    return frames
+    return results_all
