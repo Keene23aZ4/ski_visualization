@@ -34,6 +34,7 @@ def run_mediapipe(video_path: str):
             mp_image = mp.Image.create_from_array(
                 frame[:, :, ::-1],
                 mp.ImageFormat.SRGB
+            )
             mp_image = mp.Image(
                 image_format=mp.ImageFormat.SRGB,
                 data=frame[:, :, ::-1]
