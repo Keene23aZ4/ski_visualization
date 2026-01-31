@@ -3,27 +3,26 @@
 import cv2
 import mediapipe as mp
 
-
-def run_mediapipe(video_path: str):
-    mp_pose = mp.solutions.pose
-    pose = mp_pose.Pose(static_image_mode=False)
-
+def run_mediapipe(video_path):
     cap = cv2.VideoCapture(video_path)
+    mp_pose = mp.solutions.pose
 
-    results_all = []
+    frames = []
 
-    while cap.isOpened():
-        ret, frame = cap.read()
-        if not ret:
-            break
+    with mp_pose.Pose(
+        static_image_mode=False,
+        model_complexity=2,
+        enable_segmentation=False
+    ) as pose:
 
-        image_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        results = pose.process(image_rgb)
+        while cap.isOpened():
+            ret, frame = cap.read()
+            if not ret:
+                break
 
-        if results.pose_landmarks:
-            results_all.append(results.pose_landmarks)
+            rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            results = pose.process(rgb)
+            frames.append(results)
 
     cap.release()
-    pose.close()
-
-    return results_all
+    return frames
