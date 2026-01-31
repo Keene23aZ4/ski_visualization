@@ -1,29 +1,25 @@
 # core/pose/mediapipe_adapter.py
 
 import numpy as np
+import mediapipe as mp
+
+mp_pose = mp.solutions.pose
+PoseLandmark = mp_pose.PoseLandmark
+
 
 def extract_frames_from_mediapipe(results):
-    """
-    MediaPipe Pose の results から
-    [frame][landmark][x,y,z,visibility] の numpy 配列を作る
-    """
+    if not results.pose_landmarks:
+        return None
 
-    all_frames = []
+    landmarks = results.pose_landmarks.landmark
 
-    for res in results:
-        if res.pose_landmarks is None:
-            all_frames.append(None)
-            continue
+    frame = np.array([
+        [
+            landmarks[lm].x,
+            landmarks[lm].y,
+            landmarks[lm].z
+        ]
+        for lm in PoseLandmark
+    ])
 
-        frame_landmarks = []
-        for lm in res.pose_landmarks.landmark:
-            frame_landmarks.append([
-                lm.x,
-                lm.y,
-                lm.z,
-                lm.visibility
-            ])
-
-        all_frames.append(np.array(frame_landmarks, dtype=float))
-
-    return all_frames
+    return frame
