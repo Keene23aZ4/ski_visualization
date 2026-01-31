@@ -24,3 +24,15 @@ if video_path and st.button("姿勢推定を実行"):
 
     # （確認用）
     st.session_state["pose_seq"] = pose_seq
+import matplotlib.pyplot as plt
+
+f = pose_seq[0]  # 最初のフレーム
+
+plt.figure()
+plt.scatter(f[:, 0], -f[:, 1])  # y反転
+plt.title("Pose landmarks (frame 0)")
+plt.axis("equal")
+
+st.pyplot(plt)
+
+
