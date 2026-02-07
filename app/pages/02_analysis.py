@@ -171,6 +171,12 @@ if pose_seq is not None:
     ax.plot(right_knee_angles, label="Right Knee")
     ax.plot(left_hip_angles, label="Left Hip", linestyle="--")
     ax.plot(right_hip_angles, label="Right Hip", linestyle="--")
+    # ----------------------------
+    # 左右差（Left - Right）
+    # ----------------------------
+    knee_diff = left_knee_angles - right_knee_angles
+    hip_diff = left_hip_angles - right_hip_angles
+
     
     # スライダーフレーム位置を表示
     ax.axvline(frame_idx, color="k", linestyle=":", linewidth=2)
@@ -181,6 +187,24 @@ if pose_seq is not None:
     ax.grid(True)
     
     st.pyplot(fig)
+    st.subheader("左右差（Left − Right）")
+    
+    fig2, ax2 = plt.subplots(figsize=(10, 3))
+    
+    ax2.plot(knee_diff, label="Knee (L-R)")
+    ax2.plot(hip_diff, label="Hip (L-R)", linestyle="--")
+    
+    ax2.axhline(0, color="gray", linestyle=":")
+    ax2.axvline(frame_idx, color="k", linestyle=":", linewidth=2)
+    
+    ax2.set_xlabel("Frame")
+    ax2.set_ylabel("Angle difference (deg)")
+    ax2.legend()
+    ax2.grid(True)
+    
+    st.pyplot(fig2)
+
+
 
 
 
