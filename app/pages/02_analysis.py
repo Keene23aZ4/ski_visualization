@@ -83,6 +83,7 @@ if video_path and st.button("姿勢推定を実行"):
         right_knee_angles = np.array(right_knee_angles)
         left_hip_angles = np.array(left_hip_angles)
         right_hip_angles = np.array(right_hip_angles)
+ 
 
         # session_state に保存
         st.session_state["pose_seq"] = pose_seq
@@ -206,6 +207,24 @@ if pose_seq is not None:
             "label": label,
             "mean_diff": mean_diff
         })
+    cap = cv2.VideoCapture(video_path)
+    fps = cap.get(cv2.CAP_PROP_FPS)
+    cap.release()
+    if fps <= 0:
+        fps = 30
+    turn_times = []
+
+    for turn in turn_segments:
+        duration_frames = turn["end"] - turn["start"]
+        duration_sec = duration_frames / fps
+    
+        turn_times.append({
+            "label": turn["label"],
+            "start": turn["start"],
+            "end": turn["end"],
+            "frames": duration_frames,
+            "time_sec": duration_sec
+        })
     
     hip_diff = left_hip_angles - right_hip_angles
 
@@ -247,5 +266,6 @@ if pose_seq is not None:
     ax2.grid(True)
     
     st.pyplot(fig2)
+
 
 
