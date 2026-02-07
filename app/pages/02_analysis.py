@@ -1,5 +1,7 @@
 import streamlit as st
 import numpy as np
+import cv2
+import pandas as pd
 
 from core.pose.run_pose import run_mediapipe
 from core.pose.mediapipe_adapter import extract_frames_from_mediapipe
@@ -172,7 +174,7 @@ if pose_seq is not None:
         st.metric("右股", f"{right_hip_angle:.1f}")
 
 
-    import matplotlib.pyplot as plt
+
 
     st.subheader("関節角度の時系列")
     
@@ -266,6 +268,7 @@ if pose_seq is not None:
     ax2.grid(True)
     
     st.pyplot(fig2)
+
 
 
 
