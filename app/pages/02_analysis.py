@@ -88,6 +88,41 @@ if video_path and st.button("姿勢推定を実行"):
     
         plt.close(fig)
         time.sleep(0.03)  # 約30fps
+        st.subheader("フレーム指定表示（スライダー）")
+
+    T = pose_seq.shape[0]
+    
+    # フレーム番号スライダー
+    frame_idx = st.slider(
+        "Frame",
+        min_value=0,
+        max_value=T - 1,
+        value=0,
+        step=1
+    )
+    
+    f = pose_seq[frame_idx]
+    
+    import matplotlib.pyplot as plt
+    
+    plt.figure(figsize=(4, 6))
+    
+    plt.scatter(f[:, 0], -f[:, 1], s=20)
+    
+    for i, j in POSE_CONNECTIONS:
+        plt.plot(
+            [f[i, 0], f[j, 0]],
+            [-f[i, 1], -f[j, 1]],
+            linewidth=2
+        )
+    
+    plt.title(f"Pose Skeleton (frame {frame_idx})")
+    plt.axis("equal")
+    plt.axis("off")
+    
+    st.pyplot(plt)
+
+
 
 
 
