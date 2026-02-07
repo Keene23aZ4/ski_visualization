@@ -143,6 +143,35 @@ if pose_seq is not None:
     st.subheader("アニメーション再生")
 
     play = st.button("▶ 再生")
+
+    if play:
+        fps = st.session_state.get("fps", 30)
+        interval = 1.0 / fps
+    
+        placeholder = st.empty()
+    
+        for t in range(T):
+            fig = plt.figure(figsize=(6, 6))
+            ax = fig.add_subplot(111, projection="3d")
+    
+            f = pose_seq[t]
+            x, y, z = f[:, 0], -f[:, 1], -f[:, 2]
+    
+            ax.scatter(x, y, z, s=20)
+    
+            for i, j in POSE_CONNECTIONS:
+                ax.plot([x[i], x[j]],
+                        [y[i], y[j]],
+                        [z[i], z[j]])
+    
+            ax.set_title(f"Frame {t}")
+            ax.axis("off")
+    
+            placeholder.pyplot(fig)
+            plt.close(fig)
+    
+            time.sleep(interval)  # ★ 元動画fps同期
+
     
     placeholder = st.empty()
     
@@ -267,8 +296,12 @@ if pose_seq is not None:
     cap = cv2.VideoCapture(video_path)
     fps = cap.get(cv2.CAP_PROP_FPS)
     cap.release()
+    
     if fps <= 0:
-        fps = 30
+        fps = 30  # 保険
+    
+    st.session_state["fps"] = fps
+    st.write(f"Video FPS: {fps}")
     # turn_segments ができたあと
     turn_times = []
     
@@ -328,6 +361,7 @@ if pose_seq is not None:
     ax2.grid(True)
     
     st.pyplot(fig2)
+
 
 
 
