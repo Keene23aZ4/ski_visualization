@@ -54,7 +54,7 @@ if video_path and st.button("姿勢推定を実行"):
         results = run_mediapipe(video_path)
         frames = extract_frames_from_mediapipe(results)
         pose_seq = np.stack(frames)  # (T,33,3)
-            # ----------------------------
+        # ----------------------------
         # 全フレームの角度を計算
         # ----------------------------
         T = pose_seq.shape[0]
@@ -140,6 +140,36 @@ if pose_seq is not None:
     ax.set_title(f"3D Pose (frame {frame_idx})")
     
     st.pyplot(fig)
+    st.subheader("アニメーション再生")
+
+    play = st.button("▶ 再生")
+    
+    placeholder = st.empty()
+    
+    if play:
+        for t in range(0, T, 2):  # 2フレーム刻み
+            f = pose_seq[t]
+    
+            fig = plt.figure(figsize=(6, 6))
+            ax = fig.add_subplot(111, projection="3d")
+    
+            x = f[:, 0]
+            y = -f[:, 1]
+            z = -f[:, 2]
+    
+            ax.scatter(x, y, z, s=20)
+    
+            for i, j in POSE_CONNECTIONS:
+                ax.plot([x[i], x[j]],
+                        [y[i], y[j]],
+                        [z[i], z[j]])
+    
+            ax.set_title(f"Frame {t}")
+            ax.axis("off")
+    
+            placeholder.pyplot(fig)
+            plt.close(fig)
+
     POSE_CONNECTIONS = [
         (11, 13), (13, 15),
         (12, 14), (14, 16),
@@ -298,6 +328,7 @@ if pose_seq is not None:
     ax2.grid(True)
     
     st.pyplot(fig2)
+
 
 
 
