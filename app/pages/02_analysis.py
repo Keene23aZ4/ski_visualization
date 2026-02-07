@@ -110,6 +110,44 @@ if video_path and st.button("姿勢推定を実行"):
 pose_seq = st.session_state.get("pose_seq")
 
 if pose_seq is not None:
+    st.subheader("元動画")
+
+    video_path = st.session_state.get("video_path")
+    if video_path:
+        st.video(video_path)
+    st.subheader("再生制御")
+    play = st.button("▶ 元動画と姿勢を再生")
+    import time
+
+    fps = st.session_state.get("fps", 30)
+    interval = 1.0 / fps
+    
+    placeholder = st.empty()
+    
+    if play:
+        for t in range(pose_seq.shape[0]):
+            fig = plt.figure(figsize=(5, 5))
+            ax = fig.add_subplot(111, projection="3d")
+    
+            f = pose_seq[t]
+            x, y, z = f[:, 0], -f[:, 1], -f[:, 2]
+    
+            ax.scatter(x, y, z, s=20)
+            for i, j in POSE_CONNECTIONS:
+                ax.plot([x[i], x[j]],
+                        [y[i], y[j]],
+                        [z[i], z[j]])
+    
+            ax.axis("off")
+            ax.set_title(f"Frame {t}")
+    
+            placeholder.pyplot(fig)
+            plt.close(fig)
+    
+            time.sleep(interval)
+
+
+
     st.subheader("フレーム指定表示（スライダー）")
     left_knee_angles = st.session_state["left_knee_angles"]
     right_knee_angles = st.session_state["right_knee_angles"]
@@ -361,6 +399,7 @@ if pose_seq is not None:
     ax2.grid(True)
     
     st.pyplot(fig2)
+
 
 
 
