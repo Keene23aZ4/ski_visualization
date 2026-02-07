@@ -39,9 +39,6 @@ if video_path and st.button("姿勢推定を実行"):
 
     import mediapipe as mp
     
-    mp_pose = mp.solutions.pose
-    connections = mp_pose.POSE_CONNECTIONS
-    
     f = pose_seq[0]  # (33,3)
 
     plt.figure(figsize=(5, 7))
@@ -58,3 +55,4 @@ if video_path and st.button("姿勢推定を実行"):
     plt.axis("off")
     
     st.pyplot(plt)
+
