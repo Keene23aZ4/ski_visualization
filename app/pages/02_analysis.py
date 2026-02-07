@@ -5,6 +5,21 @@ from core.pose.run_pose import run_mediapipe
 from core.pose.mediapipe_adapter import extract_frames_from_mediapipe
 
 import matplotlib.pyplot as plt
+def calc_angle(a, b, c):
+    """
+    a, b, c : np.array shape (2,) or (3,)
+    b を頂点とする角度（deg）
+    """
+    ba = a - b
+    bc = c - b
+
+    cos_angle = np.dot(ba, bc) / (
+        np.linalg.norm(ba) * np.linalg.norm(bc) + 1e-8
+    )
+    cos_angle = np.clip(cos_angle, -1.0, 1.0)
+    angle = np.degrees(np.arccos(cos_angle))
+    return angle
+
 
 st.header("② 姿勢推定")
 
@@ -82,3 +97,37 @@ if pose_seq is not None:
 
     st.pyplot(fig)
     plt.close(fig)
+    # ----------------------------
+    # 関節角度計算（2D: x,y）
+    # ----------------------------
+    LEFT_HIP, LEFT_KNEE, LEFT_ANKLE = 23, 25, 27
+    RIGHT_HIP, RIGHT_KNEE, RIGHT_ANKLE = 24, 26, 28
+    
+    lh = f[LEFT_HIP][:2]
+    lk = f[LEFT_KNEE][:2]
+    la = f[LEFT_ANKLE][:2]
+    
+    rh = f[RIGHT_HIP][:2]
+    rk = f[RIGHT_KNEE][:2]
+    ra = f[RIGHT_ANKLE][:2]
+    
+    left_knee_angle = calc_angle(lh, lk, la)
+    right_knee_angle = calc_angle(rh, rk, ra)
+    
+    left_hip_angle = calc_angle(lk, lh, f[11][:2])    # 膝-股-肩
+    right_hip_angle = calc_angle(rk, rh, f[12][:2])   # 膝-股-肩
+    
+    # 表示
+    st.subheader("関節角度（deg）")
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.metric("左膝", f"{left_knee_angle:.1f}")
+        st.metric("左股", f"{left_hip_angle:.1f}")
+    
+    with col2:
+        st.metric("右膝", f"{right_knee_angle:.1f}")
+        st.metric("右股", f"{right_hip_angle:.1f}")
+
+
