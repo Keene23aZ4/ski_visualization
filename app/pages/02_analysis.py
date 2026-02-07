@@ -2,7 +2,7 @@ import streamlit as st
 import numpy as np
 import cv2
 import pandas as pd
-
+from mpl_toolkits.mplot3d import Axes3D
 from core.pose.run_pose import run_mediapipe
 from core.pose.mediapipe_adapter import extract_frames_from_mediapipe
 
@@ -93,6 +93,14 @@ if video_path and st.button("姿勢推定を実行"):
         st.session_state["right_knee_angles"] = np.array(right_knee_angles)
         st.session_state["left_hip_angles"] = np.array(left_hip_angles)
         st.session_state["right_hip_angles"] = np.array(right_hip_angles)
+        # pose_seq が定義された直後
+        frame_idx = st.slider(
+            "表示フレーム",
+            0,
+            pose_seq.shape[0] - 1,
+            0
+        )
+
     st.success("姿勢推定が完了しました")
     st.write("pose_seq shape:", pose_seq.shape)
 
@@ -120,17 +128,33 @@ if pose_seq is not None:
     )
 
     f = pose_seq[frame_idx]  # (33,3)
-
-    fig, ax = plt.subplots(figsize=(4, 6))
-
-    # 点
-    ax.scatter(f[:, 0], -f[:, 1], s=20)
-
-    # 骨格ライン
+    
+    fig = plt.figure(figsize=(6, 6))
+    ax = fig.add_subplot(111, projection="3d")
+    
+    x = f[:, 0]
+    y = -f[:, 1]
+    z = -f[:, 2]
+    
+    ax.scatter(x, y, z, s=20)
+    ax.set_title(f"3D Pose (frame {frame_idx})")
+    
+    st.pyplot(fig)
+    POSE_CONNECTIONS = [
+        (11, 13), (13, 15),
+        (12, 14), (14, 16),
+        (11, 12),
+        (23, 24),
+        (11, 23), (12, 24),
+        (23, 25), (25, 27),
+        (24, 26), (26, 28),
+    ]
+    
     for i, j in POSE_CONNECTIONS:
         ax.plot(
-            [f[i, 0], f[j, 0]],
-            [-f[i, 1], -f[j, 1]],
+            [x[i], x[j]],
+            [y[i], y[j]],
+            [z[i], z[j]],
             linewidth=2
         )
 
@@ -196,6 +220,7 @@ if pose_seq is not None:
     turn_change_idx = np.where(np.diff(sign) != 0)[0] + 1
     turn_segments = []
     
+    
     for i in range(len(turn_change_idx) - 1):
         start = turn_change_idx[i]
         end = turn_change_idx[i + 1]
@@ -214,8 +239,9 @@ if pose_seq is not None:
     cap.release()
     if fps <= 0:
         fps = 30
+    # turn_segments ができたあと
     turn_times = []
-
+    
     for turn in turn_segments:
         duration_frames = turn["end"] - turn["start"]
         duration_sec = duration_frames / fps
@@ -227,7 +253,12 @@ if pose_seq is not None:
             "frames": duration_frames,
             "time_sec": duration_sec
         })
+    })
+    df_turn = pd.DataFrame(turn_times)
+    st.subheader("ターン時間一覧")
+    st.dataframe(df_turn)
     
+        
     hip_diff = left_hip_angles - right_hip_angles
 
     
@@ -268,6 +299,7 @@ if pose_seq is not None:
     ax2.grid(True)
     
     st.pyplot(fig2)
+
 
 
 
