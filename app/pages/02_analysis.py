@@ -53,43 +53,43 @@ if video_path and st.button("姿勢推定を実行"):
         frames = extract_frames_from_mediapipe(results)
         pose_seq = np.stack(frames)  # (T,33,3)
             # ----------------------------
-            # 全フレームの角度を計算
-            # ----------------------------
-            T = pose_seq.shape[0]
-            
-            left_knee_angles = []
-            right_knee_angles = []
-            left_hip_angles = []
-            right_hip_angles = []
-            
-            for t in range(T):
-                f_t = pose_seq[t]
-            
-                lh = f_t[23][:2]
-                lk = f_t[25][:2]
-                la = f_t[27][:2]
-            
-                rh = f_t[24][:2]
-                rk = f_t[26][:2]
-                ra = f_t[28][:2]
-            
-                left_knee_angles.append(calc_angle(lh, lk, la))
-                right_knee_angles.append(calc_angle(rh, rk, ra))
-            
-                left_hip_angles.append(calc_angle(lk, lh, f_t[11][:2]))
-                right_hip_angles.append(calc_angle(rk, rh, f_t[12][:2]))
-            
-                left_knee_angles = np.array(left_knee_angles)
-                right_knee_angles = np.array(right_knee_angles)
-                left_hip_angles = np.array(left_hip_angles)
-                right_hip_angles = np.array(right_hip_angles)
+        # 全フレームの角度を計算
+        # ----------------------------
+        T = pose_seq.shape[0]
+        
+        left_knee_angles = []
+        right_knee_angles = []
+        left_hip_angles = []
+        right_hip_angles = []
+        
+        for t in range(T):
+            f_t = pose_seq[t]
+        
+            lh = f_t[23][:2]
+            lk = f_t[25][:2]
+            la = f_t[27][:2]
+        
+            rh = f_t[24][:2]
+            rk = f_t[26][:2]
+            ra = f_t[28][:2]
+        
+            left_knee_angles.append(calc_angle(lh, lk, la))
+            right_knee_angles.append(calc_angle(rh, rk, ra))
+        
+            left_hip_angles.append(calc_angle(lk, lh, f_t[11][:2]))
+            right_hip_angles.append(calc_angle(rk, rh, f_t[12][:2]))
+        
+        left_knee_angles = np.array(left_knee_angles)
+        right_knee_angles = np.array(right_knee_angles)
+        left_hip_angles = np.array(left_hip_angles)
+        right_hip_angles = np.array(right_hip_angles)
 
-            # session_state に保存
-            st.session_state["pose_seq"] = pose_seq
-            st.session_state["left_knee_angles"] = np.array(left_knee_angles)
-            st.session_state["right_knee_angles"] = np.array(right_knee_angles)
-            st.session_state["left_hip_angles"] = np.array(left_hip_angles)
-            st.session_state["right_hip_angles"] = np.array(right_hip_angles)
+        # session_state に保存
+        st.session_state["pose_seq"] = pose_seq
+        st.session_state["left_knee_angles"] = np.array(left_knee_angles)
+        st.session_state["right_knee_angles"] = np.array(right_knee_angles)
+        st.session_state["left_hip_angles"] = np.array(left_hip_angles)
+        st.session_state["right_hip_angles"] = np.array(right_hip_angles)
     st.success("姿勢推定が完了しました")
     st.write("pose_seq shape:", pose_seq.shape)
 
@@ -100,6 +100,11 @@ pose_seq = st.session_state.get("pose_seq")
 
 if pose_seq is not None:
     st.subheader("フレーム指定表示（スライダー）")
+    left_knee_angles = st.session_state["left_knee_angles"]
+    right_knee_angles = st.session_state["right_knee_angles"]
+    left_hip_angles = st.session_state["left_hip_angles"]
+    right_hip_angles = st.session_state["right_hip_angles"]
+
 
     T = pose_seq.shape[0]
 
@@ -208,3 +213,4 @@ if pose_seq is not None:
     ax2.grid(True)
     
     st.pyplot(fig2)
+
