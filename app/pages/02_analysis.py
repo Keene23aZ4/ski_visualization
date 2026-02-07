@@ -253,7 +253,6 @@ if pose_seq is not None:
             "frames": duration_frames,
             "time_sec": duration_sec
         })
-    })
     df_turn = pd.DataFrame(turn_times)
     st.subheader("ターン時間一覧")
     st.dataframe(df_turn)
@@ -299,6 +298,7 @@ if pose_seq is not None:
     ax2.grid(True)
     
     st.pyplot(fig2)
+
 
 
 
