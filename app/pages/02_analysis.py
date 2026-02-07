@@ -23,18 +23,20 @@ if video_path and st.button("姿勢推定を実行"):
     st.write("pose_seq shape:", pose_seq.shape)
 
     import matplotlib.pyplot as plt
-    from mediapipe.tasks.python.vision import PoseLandmarksConnections
+    import mediapipe as mp
     
-    # 1フレーム取り出し
+    mp_pose = mp.solutions.pose
+    connections = mp_pose.POSE_CONNECTIONS
+    
     f = pose_seq[0]  # (33,3)
     
     plt.figure(figsize=(5, 7))
     
-    # 点を描く
+    # 点
     plt.scatter(f[:, 0], -f[:, 1], s=20)
     
-    # 骨格ラインを描く
-    for i, j in PoseLandmarksConnections:
+    # 🔽 骨格ライン
+    for i, j in connections:
         x = [f[i, 0], f[j, 0]]
         y = [-f[i, 1], -f[j, 1]]
         plt.plot(x, y, linewidth=2)
@@ -44,3 +46,5 @@ if video_path and st.button("姿勢推定を実行"):
     plt.axis("off")
     
     st.pyplot(plt)
+
+
