@@ -129,5 +129,60 @@ if pose_seq is not None:
     with col2:
         st.metric("右膝", f"{right_knee_angle:.1f}")
         st.metric("右股", f"{right_hip_angle:.1f}")
+    # ----------------------------
+    # 全フレームの角度を計算
+    # ----------------------------
+    T = pose_seq.shape[0]
+    
+    left_knee_angles = []
+    right_knee_angles = []
+    left_hip_angles = []
+    right_hip_angles = []
+    
+    for t in range(T):
+        f_t = pose_seq[t]
+    
+        lh = f_t[23][:2]
+        lk = f_t[25][:2]
+        la = f_t[27][:2]
+    
+        rh = f_t[24][:2]
+        rk = f_t[26][:2]
+        ra = f_t[28][:2]
+    
+        left_knee_angles.append(calc_angle(lh, lk, la))
+        right_knee_angles.append(calc_angle(rh, rk, ra))
+    
+        left_hip_angles.append(calc_angle(lk, lh, f_t[11][:2]))
+        right_hip_angles.append(calc_angle(rk, rh, f_t[12][:2]))
+    
+    left_knee_angles = np.array(left_knee_angles)
+    right_knee_angles = np.array(right_knee_angles)
+    left_hip_angles = np.array(left_hip_angles)
+    right_hip_angles = np.array(right_hip_angles)
+
+    import matplotlib.pyplot as plt
+
+    st.subheader("関節角度の時系列")
+    
+    fig, ax = plt.subplots(figsize=(10, 4))
+    
+    ax.plot(left_knee_angles, label="Left Knee")
+    ax.plot(right_knee_angles, label="Right Knee")
+    ax.plot(left_hip_angles, label="Left Hip", linestyle="--")
+    ax.plot(right_hip_angles, label="Right Hip", linestyle="--")
+    
+    # スライダーフレーム位置を表示
+    ax.axvline(frame_idx, color="k", linestyle=":", linewidth=2)
+    
+    ax.set_xlabel("Frame")
+    ax.set_ylabel("Angle (deg)")
+    ax.legend()
+    ax.grid(True)
+    
+    st.pyplot(fig)
+
+
+
 
 
