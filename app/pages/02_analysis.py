@@ -185,18 +185,52 @@ if pose_seq is not None:
     # 左右差（Left - Right）
     # ----------------------------
     knee_diff = left_knee_angles - right_knee_angles
+        
+    # 符号
+    sign = np.sign(knee_diff)
+    
+    # 符号が変わったフレーム = ターン境界
+    turn_change_idx = np.where(np.diff(sign) != 0)[0] + 1
+    turn_segments = []
+    
+    for i in range(len(turn_change_idx) - 1):
+        start = turn_change_idx[i]
+        end = turn_change_idx[i + 1]
+    
+        mean_diff = knee_diff[start:end].mean()
+        label = "Left Turn" if mean_diff > 0 else "Right Turn"
+    
+        turn_segments.append({
+            "start": start,
+            "end": end,
+            "label": label,
+            "mean_diff": mean_diff
+        })
+    
     hip_diff = left_hip_angles - right_hip_angles
 
     
-    # スライダーフレーム位置を表示
-    ax.axvline(frame_idx, color="k", linestyle=":", linewidth=2)
+    # ======================================
+    # ターン可視化（④）
+    # ======================================
+    fig, ax = plt.subplots(figsize=(10, 3))
+    
+    ax.plot(knee_diff, color="black", label="Knee L-R")
+    ax.axhline(0, linestyle="--", color="gray")
+    
+    for turn in turn_segments:
+        color = "lightblue" if turn["label"] == "Left Turn" else "lightcoral"
+        ax.axvspan(turn["start"], turn["end"], color=color, alpha=0.3)
+    
+    ax.axvline(frame_idx, linestyle=":", color="k")
     
     ax.set_xlabel("Frame")
-    ax.set_ylabel("Angle (deg)")
+    ax.set_ylabel("Angle difference (deg)")
     ax.legend()
     ax.grid(True)
     
     st.pyplot(fig)
+
     st.subheader("左右差（Left − Right）")
     
     fig2, ax2 = plt.subplots(figsize=(10, 3))
@@ -213,4 +247,5 @@ if pose_seq is not None:
     ax2.grid(True)
     
     st.pyplot(fig2)
+
 
