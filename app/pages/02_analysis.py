@@ -55,4 +55,39 @@ if video_path and st.button("姿勢推定を実行"):
     plt.axis("off")
     
     st.pyplot(plt)
+    import time
+    import matplotlib.pyplot as plt
+    
+    # アニメーション表示用プレースホルダ
+    placeholder = st.empty()
+    
+    T = pose_seq.shape[0]
+    
+    for t in range(T):
+        f = pose_seq[t]
+    
+        fig, ax = plt.subplots(figsize=(4, 6))
+    
+        # 点
+        ax.scatter(f[:, 0], -f[:, 1], s=20)
+    
+        # 骨格ライン
+        for i, j in POSE_CONNECTIONS:
+            ax.plot(
+                [f[i, 0], f[j, 0]],
+                [-f[i, 1], -f[j, 1]],
+                linewidth=2
+            )
+    
+        ax.set_title(f"Frame {t}")
+        ax.axis("equal")
+        ax.axis("off")
+    
+        # Streamlitに描画
+        placeholder.pyplot(fig)
+    
+        plt.close(fig)
+        time.sleep(0.03)  # 約30fps
+
+
 
