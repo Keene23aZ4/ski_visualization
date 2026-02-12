@@ -110,11 +110,28 @@ if video_path and st.button("姿勢推定を実行"):
 pose_seq = st.session_state.get("pose_seq")
 
 if pose_seq is not None:
+    fps = st.session_state.get("fps", 30)
+    T = pose_seq.shape[0]
+    duration_sec = T / fps
+    current_time = st.slider(
+        "再生位置（秒）",
+        min_value=0.0,
+        max_value=float(duration_sec),
+        value=0.0,
+        step=1.0 / fps
+    )
+    frame_idx = int(current_time * fps)
+    frame_idx = min(frame_idx, T - 1)
+    
+
+
+
     st.subheader("元動画")
 
     video_path = st.session_state.get("video_path")
     if video_path:
-        st.video(video_path)
+        st.video(video_path, start_time=int(current_time))
+
     st.subheader("再生制御")
     play = st.button("▶ 元動画と姿勢を再生")
     import time
@@ -157,13 +174,6 @@ if pose_seq is not None:
 
     T = pose_seq.shape[0]
 
-    frame_idx = st.slider(
-        "Frame",
-        min_value=0,
-        max_value=T - 1,
-        value=0,
-        step=1
-    )
 
     f = pose_seq[frame_idx]  # (33,3)
     
@@ -399,6 +409,7 @@ if pose_seq is not None:
     ax2.grid(True)
     
     st.pyplot(fig2)
+
 
 
 
