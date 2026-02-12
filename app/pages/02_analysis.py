@@ -113,17 +113,43 @@ if pose_seq is not None:
     fps = st.session_state.get("fps", 30)
     T = pose_seq.shape[0]
     duration_sec = T / fps
+    
+    if "current_time" not in st.session_state:
+        st.session_state.current_time = 0.0
+    
     current_time = st.slider(
         "再生位置（秒）",
         min_value=0.0,
         max_value=float(duration_sec),
-        value=0.0,
-        step=1.0 / fps
+        value=st.session_state.current_time,
+        step=1.0 / fps,
+        key="time_slider"
     )
-    frame_idx = int(current_time * fps)
-    frame_idx = min(frame_idx, T - 1)
-    
+    col1, col2 = st.columns(2)
 
+    with col1:
+        if st.button("▶ 再生"):
+            st.session_state.playing = True
+    
+    with col2:
+        if st.button("⏸ 停止"):
+            st.session_state.playing = False
+    
+    if "playing" not in st.session_state:
+        st.session_state.playing = False
+    import time
+
+    if st.session_state.playing:
+        time.sleep(1.0 / fps)
+    
+        st.session_state.current_time += 1.0 / fps
+    
+        if st.session_state.current_time >= duration_sec:
+            st.session_state.current_time = 0.0  # ループ再生
+    
+        st.rerun()
+    frame_idx = int(st.session_state.current_time * fps)
+    frame_idx = min(frame_idx, T - 1)
 
 
     st.subheader("元動画")
@@ -409,6 +435,7 @@ if pose_seq is not None:
     ax2.grid(True)
     
     st.pyplot(fig2)
+
 
 
 
