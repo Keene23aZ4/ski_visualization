@@ -98,14 +98,24 @@ if st.session_state.playing:
 f = pose_seq[current_frame]
 
 # ----------------------------
-# 2Dスケルトン表示
-# ----------------------------
-st.subheader("2Dスケルトン")
+import plotly.graph_objects as go
 
-fig2d, ax2d = plt.subplots(figsize=(5, 7))
-ax2d.scatter(f[:, 0], -f[:, 1], s=20)
+st.subheader("3Dアバター")
 
-# MediaPipe接続（手動定義）
+f = pose_seq[current_frame]
+
+fig = go.Figure()
+
+# 関節点
+fig.add_trace(go.Scatter3d(
+    x=f[:,0],
+    y=f[:,1],
+    z=f[:,2],
+    mode='markers',
+    marker=dict(size=5)
+))
+
+# 骨接続（MediaPipe簡易接続）
 connections = [
     (11,13),(13,15),
     (12,14),(14,16),
@@ -117,12 +127,25 @@ connections = [
 ]
 
 for i, j in connections:
-    ax2d.plot([f[i,0], f[j,0]],
-              [-f[i,1], -f[j,1]])
+    fig.add_trace(go.Scatter3d(
+        x=[f[i,0], f[j,0]],
+        y=[f[i,1], f[j,1]],
+        z=[f[i,2], f[j,2]],
+        mode='lines'
+    ))
 
-ax2d.set_aspect("equal")
-ax2d.axis("off")
-st.pyplot(fig2d)
+fig.update_layout(
+    scene=dict(
+        xaxis_title='X',
+        yaxis_title='Y',
+        zaxis_title='Z',
+        aspectmode="data"
+    ),
+    height=700
+)
+
+st.plotly_chart(fig, use_container_width=True)
+
 
 # ----------------------------
 # 3Dスケルトン表示
@@ -172,4 +195,5 @@ if turn_times:
     import pandas as pd
     df_turn = pd.DataFrame(turn_times)
     st.dataframe(df_turn)
+
 
