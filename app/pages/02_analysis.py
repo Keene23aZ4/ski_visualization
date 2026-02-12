@@ -87,10 +87,13 @@ current_frame = min(current_frame, total_frames - 1)
 # ----------------------------
 if st.session_state.playing:
     st.session_state.current_time += 1.0 / fps
+
     if st.session_state.current_time >= video_duration:
         st.session_state.current_time = video_duration
         st.session_state.playing = False
-    st.experimental_rerun()
+
+    st.rerun()
+
 
 f = pose_seq[current_frame]
 
@@ -169,3 +172,4 @@ if turn_times:
     import pandas as pd
     df_turn = pd.DataFrame(turn_times)
     st.dataframe(df_turn)
+
